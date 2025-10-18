@@ -6,8 +6,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/yourusername/onchain-analytics/handlers"
-	"github.com/yourusername/onchain-analytics/services"
+	"github.com/NucleonGodX/onchain-analytics/handlers"
+	"github.com/NucleonGodX/onchain-analytics/services"
 )
 
 func main() {

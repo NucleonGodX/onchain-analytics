@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/yourusername/onchain-analytics/models"
+	"github.com/NucleonGodX/onchain-analytics/models"
 )
 
 type EtherscanService struct {

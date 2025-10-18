@@ -4,8 +4,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/yourusername/onchain-analytics/models"
-	"github.com/yourusername/onchain-analytics/utils"
+	"github.com/NucleonGodX/onchain-analytics/models"
+	"github.com/NucleonGodX/onchain-analytics/utils"
 )
 
 type AnalyticsService struct {
