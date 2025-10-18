@@ -21,13 +21,13 @@ func NewEtherscanService(apiKey string, timeout time.Duration) *EtherscanService
 		httpClient: &http.Client{
 			Timeout: timeout,
 		},
-		baseURL: "https://api.etherscan.io/api",
+		baseURL: "https://api.etherscan.io/v2/api",
 	}
 }
 
 func (s *EtherscanService) FetchTransactions(address string) ([]models.Transaction, error) {
 	url := fmt.Sprintf(
-		"%s?module=account&action=txlist&address=%s&startblock=0&endblock=99999999&page=1&offset=100&sort=desc&apikey=%s",
+		"%s?chainid=1&module=account&action=txlist&address=%s&startblock=0&endblock=99999999&page=1&offset=100&sort=desc&apikey=%s",
 		s.baseURL, address, s.apiKey,
 	)
 
@@ -41,14 +41,31 @@ func (s *EtherscanService) FetchTransactions(address string) ([]models.Transacti
 		return nil, fmt.Errorf("etherscan API returned status %d", resp.StatusCode)
 	}
 
-	var ethResp models.EtherscanResponse
-	if err := json.NewDecoder(resp.Body).Decode(&ethResp); err != nil {
+	var genericResp struct {
+		Status  string          `json:"status"`
+		Message string          `json:"message"`
+		Result  json.RawMessage `json:"result"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&genericResp); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
-	if ethResp.Status != "1" {
-		return nil, fmt.Errorf("etherscan API error: %s", ethResp.Message)
+	if genericResp.Status != "1" {
+		return nil, fmt.Errorf("etherscan API error: %s", genericResp.Message)
 	}
 
-	return ethResp.Result, nil
+	var txns []models.Transaction
+	if err := json.Unmarshal(genericResp.Result, &txns); err != nil {
+		var resultStr string
+		if err2 := json.Unmarshal(genericResp.Result, &resultStr); err2 == nil {
+			if resultStr == "No transactions found" {
+				return []models.Transaction{}, nil
+			}
+			return nil, fmt.Errorf("etherscan returned: %s", resultStr)
+		}
+		return nil, fmt.Errorf("failed to parse transactions: %w", err)
+	}
+
+	return txns, nil
 }

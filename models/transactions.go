@@ -1,5 +1,7 @@
 package models
 
+import "encoding/json"
+
 type Transaction struct {
 	Hash            string `json:"hash"`
 	BlockNumber     string `json:"blockNumber"`
@@ -28,6 +30,12 @@ type WalletAnalytics struct {
 }
 
 type EtherscanResponse struct {
+	Status  string          `json:"status"`
+	Message string          `json:"message"`
+	Result  json.RawMessage `json:"result"`
+}
+
+type EtherscanTxResponse struct {
 	Status  string        `json:"status"`
 	Message string        `json:"message"`
 	Result  []Transaction `json:"result"`
